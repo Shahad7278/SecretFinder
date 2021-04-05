@@ -35,11 +35,16 @@ from urllib.parse import urlparse
 
 # regex 
 _regex = {
-    'google_api'     : r'AIza[0-9A-Za-z-_]{35}',
-    'firebase'  : r'AAAA[A-Za-z0-9_-]{7}:[A-Za-z0-9_-]{140}',
+     'AWS_Client_Secret.bb'       : r'(SecretAccessKey|aws_secret_access_key)',
+     'AWS_Creds_File.bb'         : r'(?i)(aws_access_key_id|aws_secret_access_key)(.{0,20})?\u003d.[0-9a-zA-Z\\/+]{20,40}',
+     'AWS_EC2_Url.bb'     : r'ec2-[0-9-]+.cd-[a-z0-9-]+.compute.amazonaws.com"',
+
+     'RSA_PRIVATE_KEY'   : r'-{5}BEGIN\sRSA\sPRIVATE\sKEY-{5}',
+     'SSH_EC_PRIVATE_KEY'     : r'-{5}BEGIN\sEC\sPRIVATE\sKEY-{5}',
+     'aws_access_key_id '     : r'AKIA[0-9A-Z]{16}',
+'firebase'  : r'AAAA[A-Za-z0-9_-]{7}:[A-Za-z0-9_-]{140}',
     'google_captcha' : r'6L[0-9A-Za-z-_]{38}|^6[0-9a-zA-Z_-]{39}$',
     'google_oauth'   : r'ya29\.[0-9A-Za-z\-_]+',
-    'amazon_aws_access_key_id' : r'AKIA[0-9A-Z]{16}',
     'amazon_mws_auth_toke' : r'amzn\\.mws\\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',
     'amazon_aws_url' : r's3\.amazonaws.com[/]+|[a-zA-Z0-9_-]*\.s3\.amazonaws.com',
     'amazon_aws_url2' : r"(" \
@@ -48,13 +53,12 @@ _regex = {
            r"|s3-[a-zA-Z0-9-\.\_\/]+" \
            r"|s3.amazonaws.com/[a-zA-Z0-9-\.\_]+" \
            r"|s3.console.aws.amazon.com/s3/buckets/[a-zA-Z0-9-\.\_]+)",
+
     'facebook_access_token' : r'EAACEdEose0cBA[0-9A-Za-z]+',
     'authorization_basic' : r'basic [a-zA-Z0-9=:_\+\/-]{5,100}',
     'authorization_bearer' : r'bearer [a-zA-Z0-9_\-\.=:_\+\/]{5,100}',
     'authorization_api' : r'api[key|_key|\s+]+[a-zA-Z0-9_\-]{5,100}',
     'mailgun_api_key' : r'key-[0-9a-zA-Z]{32}',
-    'twilio_api_key' : r'SK[0-9a-fA-F]{32}',
-    'twilio_account_sid' : r'AC[a-zA-Z0-9_\-]{32}',
     'twilio_app_sid' : r'AP[a-zA-Z0-9_\-]{32}',
     'paypal_braintree_access_token' : r'access_token\$production\$[0-9a-z]{16}\$[0-9a-f]{32}',
     'square_oauth_secret' : r'sq0csp-[ 0-9A-Za-z\-_]{43}|sq0[a-z]{3}-[0-9A-Za-z\-_]{22,43}',
@@ -75,6 +79,45 @@ _regex = {
                     r"password is\s*[`=:\"]*\s*[^\s]+|" \
                     r"pwd\s*[`=:\"]*\s*[^\s]+|" \
                     r"passwd\s*[`=:\"]+\s*[^\s]+)",
+    'google_api'     : r'AIza[0-9A-Za-z-_]{35}',
+    'AWS_Access_Key_ID.bb'   : r'(AKIA[a-zA-Z0-9]{16})", "true,Or,(AccessKeyId|aws_access_key_id)", "true,Or,^(AKIA[a-zA-Z0-9]{16})", "true,Or,^((A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16})", "true,Or,[^a-zA-Z0-9]((A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16})',
+    'PGP_PRIVATE_KEY'     : r'-{5}BEGIN\sPGP\sPRIVATE\sKEY-{5}',
+    'mailchimp_key'         : r'[0-9a-f]{32}-us[0-9]{1,2}',
+    'mailgun_key'    : r'key-[0-9a-zA-Z]{32}',
+    'password_url'    : r'[a-z-0-9]{,8}:\/{2}[a-z-0-9]{,16}\:[a-z-0-9-!@#$%^&*()_+\,.<>?]{,16}@[a-z]{,64}\.[a-z]{,8}',
+    'access_token '    : r'access_token\\$production\\$[0-9a-z]{16}\\$[0-9a-f]{32}',
+    'picatic_api_key'     : r'sk_live_[0-9a-z]{32}',
+    'restricted_stripe_api_keys'     : r'rk_live_[0-9a-zA-Z]{24}',
+    'aws_mws_auth_token'       : r'amzn\\.mws\\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',
+    'ipv4'          : r'(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}',
+    'ipv6'          : r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))',
+    'md5'           : r'[a-f0-9]{32}',
+    'cloudinary-basic-auth'     : r'cloudinary:\/\/[0-9]{15}:[0-9A-Za-z]+@[a-z]+',
+    'aws-client-id'       : r'(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}',
+    'aws-mws-key'           : r'amzn\\.mws\\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',
+    'mailchamp-api'    : r'[0-9a-f]{32}-us[0-9]{1,2}',
+    'artifactory-password'    : r'(?: |=|:|\"|^)AP[0-9ABCDEF][a-zA-Z0-9]{8,}',
+    'artifactory-token'       : r'(?: |=|:|\"|^)AKC[a-zA-Z0-9]{10,}',
+    'auth-bearer'        : r'bearer [a-zA-Z0-9_\\-\\.=]+',
+    'auth-http'        : r'(?<=:\/\/)[a-zA-Z0-9]+:[a-zA-Z0-9]+@[a-zA-Z0-9]+\\.[a-zA-Z]+',
+    'twilio_api_key' : r'SK[0-9a-fA-F]{32}',
+    'twilio_account_sid' : r'AC[a-zA-Z0-9_\-]{32}',
+    'access_key'     : r'[t|T][w|W][i|I][t|T][t|T][e|E][r|R].*[1-9][0-9]+-[0-9a-zA-Z]{40}',
+    'base32'         : r'(?:[A-Z2-7]{8})*(?:[A-Z2-7]{2}={6}|[A-Z2-7]{4}={4}|[A-Z2-7]{5}={3}|[A-Z2-7]{7}=)?',
+    'base64'        : r'(eyJ|YTo|Tzo|PD[89]|aHR0cHM6L|aHR0cDo|rO0)[a-zA-Z0-9+/]+={0,2}',
+    'mailto'        : r'(?<=mailto:)[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9.-]+',
+    'google-drive-key' : r'AIza[0-9A-Za-z\\-_]{35}',
+    'google-oauth'   : r'[0-9]+-[0-9A-Za-z_]{32}\\.apps\\.googleusercontent\\.com',
+    'google-ouath-token'   : r'ya29\.[0-9A-Za-z\-_]+',
+    'GCP_service_account'     : r'\"type\": \"service_account\"',
+    'google-youtube-key'   : r'AIza[0-9A-Za-z\\-_]{35}',
+    'heroku-api'    : r'[h|H][e|E][r|R][o|O][k|K][u|U].{0,30}[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}',
+    'Authorization_Bearer.bb'     : r'bearer\\s*[a-zA-Z0-9_\\-\\.\u003d:_\\+\\/]+',
+    'Youtube_Channel_ID.bb'    : r'https?:\\/\\/(www\\.)?youtube.com\\/channel\\/UC([-_a-z0-9]{22})',
+    'Artifactory_API_Token.bb'     : r'(?:\\s|\u003d|:|\"|^)AKC[a-zA-Z0-9]{10,}',
+    'slack_token'    : r'(xox[p|b|o|a]-[0-9]{12}-[0-9]{12}-[0-9]{12}-[a-z0-9]{32})',
+    'slack_webhook_url'  : r'https://hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}',
+    'rsa_private_key' : r'-----BEGIN RSA PRIVATE KEY-----',
 }
 
 _template = '''
